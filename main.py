@@ -44,11 +44,17 @@ class GasPriceAlert:
         self.gas_threshold = float(gas_threshold_env)
         logger.info(f"GAS_THRESHOLD value from environment: {gas_threshold_env}")
         logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key}")
+        
         self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))
+        logger.info(f"CHECK_INTERVAL value from environment: {self.check_interval}")
         self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))
+        logger.info(f"ALERT_COOLDOWN value from environment: {self.alert_cooldown}")
         self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))
+        logger.info(f"MOSCOW_TIMEZONE_OFFSET value from environment: {self.moscow_timezone_offset}")
         self.silence_start_hour = int(os.getenv("SILENCE_START_HOUR", "0"))
+        logger.info(f"SILENCE_START_HOUR value from environment: {self.silence_start_hour}")
         self.silence_end_hour = int(os.getenv("SILENCE_END_HOUR", "7"))
+        logger.info(f"SILENCE_END_HOUR value from environment: {self.silence_end_hour}")
 
         logger.info(f"TELEGRAM_BOT_TOKEN value: {self.telegram_bot_token}")
         logger.info(f"TELEGRAM_CHAT_ID value: {self.telegram_chat_id}")
