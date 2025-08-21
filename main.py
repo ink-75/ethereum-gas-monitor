@@ -28,19 +28,22 @@ logger = logging.getLogger(__name__)
 
 class GasPriceAlert:
     def __init__(self):
-        # Temporarily hardcode config values for testing
-        self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNLGtm53L1kfLSbR09ZdFA"  # From your first image
-        self.telegram_chat_id = "508236246"  # From your second image
-        self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY", "default_api_key")  # Fallback for testing
-        self.gas_threshold = float(os.getenv("GAS_THRESHOLD", "50"))  # Example fallback
-        self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))  # Example fallback
-        self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))  # Example fallback
-        self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))  # Example fallback
-        self.silence_start_hour = int(os.getenv("SILENCE_START_HOUR", "0"))  # Example fallback
-        self.silence_end_hour = int(os.getenv("SILENCE_END_HOUR", "7"))  # Example fallback
+        # Use the verified token from your test
+        self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNLGtm53L1kfLSbRO9ZzDFA"
+        self.telegram_chat_id = "508236246"
+        self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
+        if not self.etherscan_api_key:
+            logger.error("ETHERSCAN_API_KEY environment variable is required")
+            raise ValueError("ETHERSCAN_API_KEY is not set")
+        self.gas_threshold = float(os.getenv("GAS_THRESHOLD", "50"))
+        self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))
+        self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))
+        self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))
+        self.silence_start_hour = int(os.getenv("SILENCE_START_HOUR", "0"))
+        self.silence_end_hour = int(os.getenv("SILENCE_END_HOUR", "7"))
 
-        logger.info(f"TELEGRAM_BOT_TOKEN value: {self.telegram_bot_token}")  # Debug log
-        logger.info(f"TELEGRAM_CHAT_ID value: {self.telegram_chat_id}")  # Debug log
+        logger.info(f"TELEGRAM_BOT_TOKEN value: {self.telegram_bot_token}")
+        logger.info(f"TELEGRAM_CHAT_ID value: {self.telegram_chat_id}")
 
         self.gas_monitor = GasMonitor(self.etherscan_api_key)
         self.telegram_notifier = TelegramNotifier(self.telegram_bot_token, self.telegram_chat_id)
@@ -49,14 +52,10 @@ class GasPriceAlert:
         self.last_alert_time = None
         
     def signal_handler(self, signum, frame):
-        """Handle shutdown signals gracefully"""
         logger.info("Received shutdown signal. Stopping gas monitor...")
         self.running = False
         
     def is_silence_hours(self):
-        """
-        Check if current time is within silence hours (Moscow time)
-        """
         moscow_tz = timezone(timedelta(hours=self.moscow_timezone_offset))
         moscow_time = datetime.now(moscow_tz)
         current_hour = moscow_time.hour
@@ -70,9 +69,6 @@ class GasPriceAlert:
             return current_hour >= start_hour or current_hour < end_hour
     
     def should_send_alert(self, gas_price):
-        """
-        Determine if an alert should be sent based on gas price, cooldown, and silence hours
-        """
         if gas_price > self.gas_threshold:
             return False
             
@@ -88,7 +84,6 @@ class GasPriceAlert:
         return True
         
     def format_gas_price_message(self, gas_price, threshold):
-        """Format the gas price alert message with crypto prices"""
         message = (
             f"🔥 Gas Alert! 🔥\n\n"
             f"⛽ Gas Price: {gas_price} gwei\n"
@@ -113,7 +108,6 @@ class GasPriceAlert:
         return message
         
     def run_check(self):
-        """Run a single gas price check"""
         try:
             logger.info("Checking gas prices...")
             gas_price = self.gas_monitor.get_current_gas_price()
@@ -122,7 +116,7 @@ class GasPriceAlert:
                 logger.warning("Failed to fetch gas price")
                 return
                 
-            logger.info(f"Current gas price: {gas_price} gwei | Threshold: {self.gas_threshold} gwei")
+            logger.info(f"Current gas price: {gas_price} gwei | Threshold: {self.gas_threshold}")
             
             status = "🟢 BELOW" if gas_price <= self.gas_threshold else "🔴 ABOVE"
             print(f"[{datetime.now().strftime('%H:%M:%S')}] Gas: {gas_price} gwei | Status: {status} threshold")
@@ -140,7 +134,6 @@ class GasPriceAlert:
             logger.error(f"Error during gas price check: {str(e)}")
             
     def run(self):
-        """Main monitoring loop"""
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
         
@@ -150,7 +143,6 @@ class GasPriceAlert:
         logger.info(f"Alert cooldown: {self.alert_cooldown} seconds")
         logger.info(f"Silence hours: {self.silence_start_hour}:00-{self.silence_end_hour}:00 Moscow time")
         
-        # Use instance variables instead of self.config
         startup_message = (
             f"🚀 Gas Monitor Started!\n\n"
             f"Threshold: {self.gas_threshold} gwei\n"
@@ -179,7 +171,6 @@ class GasPriceAlert:
         logger.info("Gas price monitor stopped")
 
 def main():
-    """Main function"""
     try:
         monitor = GasPriceAlert()
         monitor.run()
