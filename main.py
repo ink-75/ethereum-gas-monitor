@@ -31,15 +31,16 @@ class GasPriceAlert:
         env_vars = os.environ
         logger.info(f"Available environment variables: {list(env_vars.keys())}")
         
-        # Updated token from @BotFather
         self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNlGtm53L1kfLSbRO9ZzDFA"
         self.telegram_chat_id = "508236246"
         self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY", "U8UF8Q2781NK77SJ85TVXQKT6TG21TSHQR")  # Temporary fallback
+        gas_threshold_env = os.getenv("GAS_THRESHOLD", "50")
+        self.gas_threshold = float(gas_threshold_env)
+        logger.info(f"GAS_THRESHOLD value from environment: {gas_threshold_env}")
         logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key}")
         if not self.etherscan_api_key:
             logger.error("ETHERSCAN_API_KEY environment variable is required")
             raise ValueError("ETHERSCAN_API_KEY is not set")
-        self.gas_threshold = float(os.getenv("GAS_THRESHOLD", "50"))
         self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))
         self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))
         self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))
@@ -127,7 +128,7 @@ class GasPriceAlert:
             
             if self.should_send_alert(gas_price):
                 message = self.format_gas_price_message(gas_price, self.gas_threshold)
-                logger.info(f"Attempting to send Telegram message: {message}")  # Debug log
+                logger.info(f"Attempting to send Telegram message: {message}")
                 if self.telegram_notifier.send_message(message):
                     self.last_alert_time = datetime.now()
                     logger.info(f"Alert sent! Gas price {gas_price} gwei is below threshold {self.gas_threshold} gwei")
@@ -154,7 +155,7 @@ class GasPriceAlert:
             f"Silence Hours: {self.silence_start_hour}:00-{self.silence_end_hour}:00 Moscow time\n"
             f"Monitoring started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
-        logger.info(f"Attempting to send startup message: {startup_message}")  # Debug log
+        logger.info(f"Attempting to send startup message: {startup_message}")
         self.telegram_notifier.send_message(startup_message)
         
         while self.running:
