@@ -28,10 +28,14 @@ logger = logging.getLogger(__name__)
 
 class GasPriceAlert:
     def __init__(self):
-        # Use the verified token from your test
+        # Debug all environment variables
+        env_vars = os.environ
+        logger.info(f"Available environment variables: {list(env_vars.keys())}")
+        
         self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNLGtm53L1kfLSbRO9ZzDFA"
         self.telegram_chat_id = "508236246"
         self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
+        logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key or 'Not set'}")
         if not self.etherscan_api_key:
             logger.error("ETHERSCAN_API_KEY environment variable is required")
             raise ValueError("ETHERSCAN_API_KEY is not set")
