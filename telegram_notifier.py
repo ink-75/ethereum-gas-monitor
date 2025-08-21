@@ -1,9 +1,6 @@
-"""
-Telegram notification functionality
-"""
-
 import requests
 import logging
+import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -109,3 +106,41 @@ class TelegramNotifier:
         """
         test_message = "🧪 Test message from Ethereum Gas Monitor\n\nIf you received this, the bot is working correctly!"
         return self.send_message(test_message)
+
+def start_gas_monitor():
+    # Retrieve environment variables with debug logging
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    logger.info(f"TELEGRAM_BOT_TOKEN value: {bot_token or 'Not set'}")  # Debug log
+    if not bot_token:
+        logger.error("Failed to start gas monitor: TELEGRAM_BOT_TOKEN environment variable is required")
+        raise ValueError("TELEGRAM_BOT_TOKEN is not set")
+    
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    logger.info(f"TELEGRAM_CHAT_ID value: {chat_id or 'Not set'}")  # Debug log
+    if not chat_id:
+        logger.error("Failed to start gas monitor: TELEGRAM_CHAT_ID environment variable is required")
+        raise ValueError("TELEGRAM_CHAT_ID is not set")
+    
+    # Initialize TelegramNotifier
+    notifier = TelegramNotifier(bot_token, chat_id)
+
+    # Test the connection
+    if not notifier.test_connection():
+        logger.error("Failed to connect to Telegram API")
+        raise RuntimeError("Telegram bot connection failed")
+
+    # Send a test message to verify
+    if not notifier.send_test_message():
+        logger.error("Failed to send test message")
+        raise RuntimeError("Telegram test message failed")
+
+    logger.info("Gas monitor started successfully")
+    # Proceed with gas monitor logic...
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    try:
+        start_gas_monitor()
+    except Exception as e:
+        logger.error(f"Gas monitor failed to start: {e}")
+        raise
