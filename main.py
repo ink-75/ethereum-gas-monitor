@@ -31,8 +31,14 @@ class GasPriceAlert:
         env_vars = os.environ
         logger.info(f"Available environment variables: {list(env_vars.keys())}")
         
-        self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNlGtm53L1kfLSbRO9ZzDFA"
-        self.telegram_chat_id = "508236246"
+        self.telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+if not self.telegram_bot_token:
+    logger.error("TELEGRAM_BOT_TOKEN environment variable is required")
+    raise ValueError("TELEGRAM_BOT_TOKEN is not set")
+        self.telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
+if not self.telegram_chat_id:
+    logger.error("TELEGRAM_CHAT_ID environment variable is required")
+    raise ValueError("TELEGRAM_CHAT_ID is not set")
         self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
         if not self.etherscan_api_key:
             logger.error("ETHERSCAN_API_KEY environment variable is required")
