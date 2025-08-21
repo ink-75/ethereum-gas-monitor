@@ -10,7 +10,6 @@ import time
 import signal
 import logging
 from datetime import datetime, timezone, timedelta
-from config import Config  # Keep import for now, but we'll bypass it
 from gas_monitor import GasMonitor
 from telegram_notifier import TelegramNotifier
 from crypto_prices import CryptoPriceFetcher
@@ -151,11 +150,12 @@ class GasPriceAlert:
         logger.info(f"Alert cooldown: {self.alert_cooldown} seconds")
         logger.info(f"Silence hours: {self.silence_start_hour}:00-{self.silence_end_hour}:00 Moscow time")
         
+        # Use instance variables instead of self.config
         startup_message = (
             f"🚀 Gas Monitor Started!\n\n"
             f"Threshold: {self.gas_threshold} gwei\n"
-            f"Check Interval: {self.config.check_interval}s\n"  # Note: Using config here might fail
-            f"Silence Hours: {self.config.silence_start_hour}:00-{self.config.silence_end_hour}:00 Moscow time\n"
+            f"Check Interval: {self.check_interval}s\n"
+            f"Silence Hours: {self.silence_start_hour}:00-{self.silence_end_hour}:00 Moscow time\n"
             f"Monitoring started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
         self.telegram_notifier.send_message(startup_message)
