@@ -1,6 +1,5 @@
 import requests
 import logging
-import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -108,18 +107,12 @@ class TelegramNotifier:
         return self.send_message(test_message)
 
 def start_gas_monitor():
-    # Retrieve environment variables with debug logging
-    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
-    logger.info(f"TELEGRAM_BOT_TOKEN value: {bot_token or 'Not set'}")  # Debug log
-    if not bot_token:
-        logger.error("Failed to start gas monitor: TELEGRAM_BOT_TOKEN environment variable is required")
-        raise ValueError("TELEGRAM_BOT_TOKEN is not set")
+    # Hardcode variables for testing (replace with actual values)
+    bot_token = "8495333453:AAHyjiUpwe1SMNLGtm53L1kfLSbR09ZdFA"  # From your first image
+    chat_id = "508236246"  # From your second image
     
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
-    logger.info(f"TELEGRAM_CHAT_ID value: {chat_id or 'Not set'}")  # Debug log
-    if not chat_id:
-        logger.error("Failed to start gas monitor: TELEGRAM_CHAT_ID environment variable is required")
-        raise ValueError("TELEGRAM_CHAT_ID is not set")
+    logger.info(f"TELEGRAM_BOT_TOKEN value: {bot_token}")  # Debug log
+    logger.info(f"TELEGRAM_CHAT_ID value: {chat_id}")  # Debug log
     
     # Initialize TelegramNotifier
     notifier = TelegramNotifier(bot_token, chat_id)
