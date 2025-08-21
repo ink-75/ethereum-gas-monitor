@@ -33,14 +33,17 @@ class GasPriceAlert:
         
         self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNlGtm53L1kfLSbRO9ZzDFA"
         self.telegram_chat_id = "508236246"
-        self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY", "U8UF8Q2781NK77SJ85TVXQKT6TG21TSHQR")  # Temporary fallback
-        gas_threshold_env = os.getenv("GAS_THRESHOLD", "50")
-        self.gas_threshold = float(gas_threshold_env)
-        logger.info(f"GAS_THRESHOLD value from environment: {gas_threshold_env}")
-        logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key}")
+        self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
         if not self.etherscan_api_key:
             logger.error("ETHERSCAN_API_KEY environment variable is required")
             raise ValueError("ETHERSCAN_API_KEY is not set")
+        gas_threshold_env = os.getenv("GAS_THRESHOLD")
+        if not gas_threshold_env:
+            logger.error("GAS_THRESHOLD environment variable is required")
+            raise ValueError("GAS_THRESHOLD is not set")
+        self.gas_threshold = float(gas_threshold_env)
+        logger.info(f"GAS_THRESHOLD value from environment: {gas_threshold_env}")
+        logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key}")
         self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))
         self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))
         self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))
