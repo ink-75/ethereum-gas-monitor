@@ -31,8 +31,14 @@ class GasPriceAlert:
         env_vars = os.environ
         logger.info(f"Available environment variables: {list(env_vars.keys())}")
         
-        self.telegram_bot_token = "8495333453:AAHyjiUpwe1SMNlGtm53L1kfLSbRO9ZzDFA"
-        self.telegram_chat_id = "508236246"
+        self.telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if not self.telegram_bot_token:
+            logger.error("TELEGRAM_BOT_TOKEN environment variable is required")
+            raise ValueError("TELEGRAM_BOT_TOKEN is not set")
+        self.telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
+        if not self.telegram_chat_id:
+            logger.error("TELEGRAM_CHAT_ID environment variable is required")
+            raise ValueError("TELEGRAM_CHAT_ID is not set")
         self.etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
         if not self.etherscan_api_key:
             logger.error("ETHERSCAN_API_KEY environment variable is required")
@@ -45,19 +51,16 @@ class GasPriceAlert:
         logger.info(f"GAS_THRESHOLD value from environment: {gas_threshold_env}")
         logger.info(f"ETHERSCAN_API_KEY value: {self.etherscan_api_key}")
         
-        self.check_interval = int(os.getenv("CHECK_INTERVAL", "300"))
+        self.check_interval = int(os.getenv("CHECK_INTERVAL"))
         logger.info(f"CHECK_INTERVAL value from environment: {self.check_interval}")
-        self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN", "3600"))
+        self.alert_cooldown = int(os.getenv("ALERT_COOLDOWN"))
         logger.info(f"ALERT_COOLDOWN value from environment: {self.alert_cooldown}")
-        self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET", "3"))
+        self.moscow_timezone_offset = int(os.getenv("MOSCOW_TIMEZONE_OFFSET"))
         logger.info(f"MOSCOW_TIMEZONE_OFFSET value from environment: {self.moscow_timezone_offset}")
-        self.silence_start_hour = int(os.getenv("SILENCE_START_HOUR", "0"))
+        self.silence_start_hour = int(os.getenv("SILENCE_START_HOUR"))
         logger.info(f"SILENCE_START_HOUR value from environment: {self.silence_start_hour}")
-        self.silence_end_hour = int(os.getenv("SILENCE_END_HOUR", "7"))
+        self.silence_end_hour = int(os.getenv("SILENCE_END_HOUR"))
         logger.info(f"SILENCE_END_HOUR value from environment: {self.silence_end_hour}")
-
-        logger.info(f"TELEGRAM_BOT_TOKEN value: {self.telegram_bot_token}")
-        logger.info(f"TELEGRAM_CHAT_ID value: {self.telegram_chat_id}")
 
         self.gas_monitor = GasMonitor(self.etherscan_api_key)
         self.telegram_notifier = TelegramNotifier(self.telegram_bot_token, self.telegram_chat_id)
@@ -87,7 +90,7 @@ class GasPriceAlert:
             return False
             
         if self.is_silence_hours():
-            logger.info("Within silence hours (0am-7am Moscow time) - notification suppressed")
+            logger.info("Within silence hours - notification suppressed")
             return False
             
         if self.last_alert_time:
